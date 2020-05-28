@@ -1,6 +1,4 @@
 package com.jidda.reactiveFileTail;
-
-import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.input.Tailer;
 import org.apache.commons.io.input.TailerListenerAdapter;
 import reactor.core.publisher.FluxSink;
@@ -9,21 +7,17 @@ import reactor.util.Loggers;
 
 import java.io.FileNotFoundException;
 
-
 class FluxTailerListener extends TailerListenerAdapter {
-
-    private static final Logger LOGGER = Loggers.getLogger(FluxTailerListener.class);
-
+    private static final Logger LOGGER = Loggers.getLogger(com.jidda.reactiveFileTail.FluxTailerListener.class);
     private FluxSink<String> sink;
     private String file;
     private Tailer tailer;
 
-
-    FluxTailerListener(){
+    FluxTailerListener() {
         this(null);
     }
 
-    FluxTailerListener(FluxSink<String> sink){
+    FluxTailerListener(FluxSink<String> sink) {
         this.sink = sink;
         this.file = "Unknown";
     }
@@ -32,42 +26,38 @@ class FluxTailerListener extends TailerListenerAdapter {
         this.sink = sink;
     }
 
-    @Override
     public void init(Tailer tailer) {
         this.tailer = tailer;
         this.file = tailer.getFile().getAbsolutePath();
     }
 
-    @Override
     public void fileNotFound() {
-        if(sink == null){
+        if (this.sink == null) {
             throw new IllegalStateException("Need to assign fluxSink");
+        } else {
+            this.sink.error(new FileNotFoundException());
+            this.tailer.stop();
         }
-        sink.error(new FileNotFoundException());
-        tailer.stop();
     }
 
-    @Override
     public void fileRotated() {
-        LOGGER.info("{} rotated",file);
+        LOGGER.info("{} rotated", this.file);
     }
 
-    @Override
     public void handle(String line) {
-        if(sink == null){
+        if (this.sink == null) {
             throw new IllegalStateException("Need to assign fluxSink");
+        } else {
+            this.sink.next(line);
         }
-        System.out.println("Handling: " + line);
-        sink.next(line);
     }
 
-    @Override
     public void handle(Exception ex) {
-        if(sink == null){
+        if (this.sink == null) {
             throw new IllegalStateException("Need to assign fluxSink");
+        } else {
+            this.sink.error(ex);
+            this.tailer.stop();
         }
-        sink.error(ex);
-        tailer.stop();
     }
-
 }
