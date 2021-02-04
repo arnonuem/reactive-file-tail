@@ -10,7 +10,7 @@
     </parent>
     <groupId>com.jidda</groupId>
     <artifactId>reactive-file-tail</artifactId>
-    <version>0.0.1-SNAPSHOT</version>
+    <version>0.0.1</version>
     <name>reactive-file-tail</name>
     <description>Tail a file using reactor</description>
 
@@ -41,7 +41,6 @@
         <!--OTHER-->
         <dependency>
             <groupId>org.projectlombok</groupId>
-
             <artifactId>lombok</artifactId>
             <optional>true</optional>
         </dependency>
